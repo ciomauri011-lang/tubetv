@@ -51,3 +51,8 @@ Tests: `./gradlew testDebugUnitTest`
   oculta overlays, salta sponsors vía API SponsorBlock.
 - Límite: anuncios in-stream no saltables de YouTube pueden verse segundos
   (muteados/acelerados); vienen del propio player oficial.
+
+## Licencia
+Dual: código original TubeTV → MIT; partes derivadas de Brave → MPL-2.0
+(ver `LICENSE` y `LICENSE-UPSTREAM-MPL-2.0`). Proyecto independiente,
+sin afiliación con Brave Software ni Google.
