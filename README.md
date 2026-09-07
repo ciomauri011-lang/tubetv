@@ -1,10 +1,18 @@
-# TubeTV – YouTube only (Google TV)
+# TubeTV – tu YouTube sin ruido en la TV del salón
 
-Kiosko solo-YouTube para Google TV / Android TV. Sin otras páginas.
-UI = `https://www.youtube.com/tv` (Leanback, misma que APK nativa) + User-Agent de Smart TV.
-Motor = WebView del sistema. Adblock integrado en `shouldInterceptRequest` + allowlist estricta.
+El kiosko solo-YouTube para Android TV / Google TV: la interfaz Leanback oficial
+que ya conoces, sin navegador, sin distracciones, sin anuncios que te interrumpan.
 
-Proyecto independiente, sin afiliación con Brave Software ni Google.
+- **Anti-ads real**: EasyList (78.000 reglas) + auto-skip de anuncios + mute
+  inteligente + SponsorBlock (adiós sponsors, intros y outros).
+- **Búsqueda por voz** con el micro del mando.
+- **Sleep timer**: mantén BACK y programa el apagado.
+- **Sesión Google persistente**, incluso tras reboot del TV.
+- **Auto-update** desde GitHub, sin Play Store.
+
+*Your noise-free YouTube for the living-room TV: official Leanback UI, EasyList
+anti-ads, auto-skip + SponsorBlock, voice search, sleep timer, persistent login,
+auto-updates. 100% open source.*
 
 ## Estructura
 ```
