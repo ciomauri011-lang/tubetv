@@ -1,15 +1,21 @@
 package com.tubetv.youtube
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.webkit.CookieManager
+import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 
@@ -21,10 +27,12 @@ class MainActivity : AppCompatActivity() {
         const val TV_USER_AGENT =
             "Mozilla/5.0 (Linux; Tizen 6.0; SmartHub; SMART-TV) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 SmartTV"
+        const val REQ_MIC = 41
     }
 
     private lateinit var webView: WebView
     private lateinit var fullscreenContainer: FrameLayout
+    private lateinit var sleepTimer: SleepTimer
     private var fullscreenView: View? = null
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
 
@@ -90,7 +98,28 @@ class MainActivity : AppCompatActivity() {
                 isUserGesture: Boolean,
                 resultMsg: android.os.Message?
             ): Boolean = false
+
+            // Voz: cede micrófono a la página si el usuario lo permitió.
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                if (request == null) return
+                val micOk = ContextCompat.checkSelfPermission(
+                    this@MainActivity,
+                    android.Manifest.permission.RECORD_AUDIO
+                ) == PackageManager.PERMISSION_GRANTED
+                val wantsMic = request.resources.any {
+                    it == PermissionRequest.RESOURCE_AUDIO_CAPTURE
+                }
+                if (micOk && wantsMic) {
+                    request.grant(request.resources)
+                } else {
+                    request.deny()
+                }
+            }
         }
+
+        sleepTimer = SleepTimer(this) { goToSleep() }
+        requestMic()
+        UpdateChecker(this).checkOnceDaily()
 
         if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState)
@@ -126,6 +155,33 @@ class MainActivity : AppCompatActivity() {
         }, "tubetv-adblock").start()
     }
 
+    /** Micrófono para búsqueda por voz de YouTube. */
+    private fun requestMic() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.RECORD_AUDIO), REQ_MIC)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_MIC && (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
+            Toast.makeText(this, "Sin micrófono no hay búsqueda por voz", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /** Sleep: pausa video y sale al home del TV. */
+    private fun goToSleep() {
+        runCatching { webView.loadUrl("javascript:(function(){var v=document.querySelector('video');if(v){try{v.pause()}catch(e){}}})()") }
+        val home = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        runCatching { startActivity(home) }
+        finish()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         webView.saveState(outState)
@@ -144,6 +200,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    // BACK largo = sleep timer (el Shield no tiene botón MENU).
+    override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (::sleepTimer.isInitialized) sleepTimer.cycle()
+            return true
+        }
+        return super.onKeyLongPress(keyCode, event)
     }
 
     override fun onPause() {
