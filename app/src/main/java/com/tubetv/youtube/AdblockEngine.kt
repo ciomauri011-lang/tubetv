@@ -1,10 +1,10 @@
-package com.brave.tv.youtube
+package com.tubetv.youtube
 
 import java.net.URI
 import java.util.LinkedHashMap
 
 /**
- * Motor adblock estilo Brave, versión ligera en Kotlin puro (testeable en JVM).
+ * Motor anti-ads, versión ligera en Kotlin puro (testeable en JVM).
  *
  * Lee sintaxis Adblock Plus (EasyList) y soporta el subconjunto útil para red:
  *  - Reglas de bloqueo y excepción (@@)

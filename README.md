@@ -1,62 +1,45 @@
-# Brave TV – YouTube only (Google TV)
+# TubeTV – YouTube only (Google TV)
 
-Wrapper estilo Brave para Google TV / Android TV. Solo YouTube. Sin otras páginas.
+Kiosko solo-YouTube para Google TV / Android TV. Sin otras páginas.
 UI = `https://www.youtube.com/tv` (Leanback, misma que APK nativa) + User-Agent de Smart TV.
-Motor = Android WebView del sistema (no fork Chromium completo). Adblock estilo Brave
-simplificado en `shouldInterceptRequest` + allowlist estricta.
+Motor = WebView del sistema. Adblock integrado en `shouldInterceptRequest` + allowlist estricta.
+
+Proyecto independiente, sin afiliación con Brave Software ni Google.
 
 ## Estructura
 ```
-brave-tv-youtube/
-  settings.gradle.kts
+app/
   build.gradle.kts
-  app/build.gradle.kts
-  app/src/main/AndroidManifest.xml
-  app/src/main/java/com/brave/tv/youtube/MainActivity.kt
-  app/src/main/java/com/brave/tv/youtube/YouTubeWebViewClient.kt
-  app/src/main/res/layout/activity_main.xml
+  src/main/AndroidManifest.xml
+  src/main/java/com/tubetv/youtube/MainActivity.kt
+  src/main/java/com/tubetv/youtube/YouTubeWebViewClient.kt
+  src/main/java/com/tubetv/youtube/AdblockEngine.kt
+  src/main/assets/easylist.txt
+  src/main/assets/adblock.js
 ```
 
-## Requisitos (pendientes en tu PC)
-- Windows 10/11 64-bit — OK (tienes D: 285 GB libres)
-- Android Studio Ladybug+ → https://developer.android.com/studio
-- Android SDK: platform android-34/35 + Android TV image + platform-tools (adb)
-- JDK 17 (Temurin o el embebido de Android Studio). Tienes Java 1.8 → ACTUALIZAR
-- Kotlin 2.x, AGP 8.5+, minSdk 23 (TV 6.0+), targetSdk 34/35
-- Dispositivo Google TV / Android TV con WebView actualizado
+## Requisitos
+- Android Studio Ladybug+, JDK 17, Android SDK (platform 34, build-tools 34, platform-tools)
+- Kotlin 2.x, AGP 8.5+, minSdk 23, targetSdk 34
+- Google TV / Android TV con WebView actualizado
 
-## Abrir y compilar
-1. Instala Android Studio + SDK + crea emulador "Android TV 1080p API 34".
-2. Abre la carpeta `brave-tv-youtube/` en Android Studio.
-3. Sync Gradle → Run en TV/emulador, o `adb install app-debug.apk`.
-4. Al arrancar carga `youtube.com/tv`. D-pad = navegación nativa Leanback.
-   BACK = historial WebView, si no hay más → no sale (kiosko).
+## Compilar
+`./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`
+Tests: `./gradlew testDebugUnitTest`
 
 ## Reglas del kiosko
-- Allowlist: `*.youtube.com`, `*.googlevideo.com`, `*.gstatic.com`, `*.googleapis.com`.
-  Todo lo demás → bloqueado (`ERR_BLOCKED`).
+- Allowlist: `*.youtube.com`, `*.googlevideo.com`, `*.gstatic.com`,
+  `*.googleapis.com`, login Google, SponsorBlock. Resto → bloqueado.
 - `onCreateWindow` (popups) bloqueado.
 - Fullscreen video vía `onShowCustomView/onHideCustomView`.
-- User-Agent Smart TV para forzar Leanback:
-  `Mozilla/5.0 (Linux; Tizen 6.0; SmartHub) AppleWebKit/537.36 … Chrome/… Safari/537.36 SmartTV`
-  (ver `MainActivity.TV_USER_AGENT`).
+- User-Agent Smart TV fuerza Leanback (ver `MainActivity.TV_USER_AGENT`).
+- BACK = fullscreen > historial WebView > nada.
+- Sesión persistente: cookies + `flush()` en `onPause()`.
 
-## Adblock estilo Brave (v1 simple)
-`YouTubeWebViewClient.shouldInterceptRequest` bloquea por substrings
-(doubleclick, googlesyndication, googleadservices, etc.). No toca anuncios
-inyectados del propio player de YouTube (igual que Brave real en TV).
-Evolución: usar `brave/adblock-rust` (clonado en `_ref-adblock-rust/`) vía
-JNI o lista EasyList local + `WebViewAssetLoader`.
-
-## Referencias descargadas
-- `_ref-mrowser/` → `m-salehi-v/mrowser`: browser TV open-source con D-pad,
-  SniffingWebViewClient, ExoPlayer. Base para cursor virtual y handoff HLS.
-- `_ref-adblock-rust/` → `brave/adblock-rust`: motor adblock real de Brave.
-
-## NO es fork de brave-core
-Fork completo = Linux + 100 GB + depot_tools + `pnpm run init/build`
-(60 GB, 240 repos, horas de compilación). Inviable en este PC Windows
-y sobredimensionado para "solo YouTube". Este wrapper logra el objetivo:
-icono Brave, solo YouTube, UI idéntica a APK nativa, mando simple.
-Si luego quieres motor Brave real: compila en Linux o usa Custom Tabs
-con paquete `com.brave.browser` como fallback.
+## Anti-ads (v2)
+- Red: `AdblockEngine` (Kotlin) con EasyList real (sintaxis ABP: `||host^`,
+  `@@`, `$third-party`, `$domain=`). 7 unit tests.
+- Player (`assets/adblock.js`): auto-clic Omitir/Skip, mute + 16x en anuncios,
+  oculta overlays, salta sponsors vía API SponsorBlock.
+- Límite: anuncios in-stream no saltables de YouTube pueden verse segundos
+  (muteados/acelerados); vienen del propio player oficial.

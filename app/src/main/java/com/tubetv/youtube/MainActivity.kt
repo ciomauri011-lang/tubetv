@@ -1,4 +1,4 @@
-package com.brave.tv.youtube
+package com.tubetv.youtube
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 webView.webViewClient = YouTubeWebViewClient(eng, js)
             }
-        }, "btv-adblock").start()
+        }, "tubetv-adblock").start()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

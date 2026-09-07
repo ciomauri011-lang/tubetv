@@ -1,4 +1,4 @@
-package com.brave.tv.youtube
+package com.tubetv.youtube
 
 import android.net.Uri
 import android.webkit.WebResourceRequest
@@ -8,7 +8,7 @@ import android.webkit.WebViewClient
 import java.io.ByteArrayInputStream
 
 /**
- * Kiosko YouTube-only + adblock estilo Brave/SmartTube.
+ * Kiosko YouTube-only + anti-ads integrado.
  *
  * Red: [AdblockEngine] con EasyList (assets/easylist.txt). Sin engine o con
  * engine vacío, usa lista dura mínima de respaldo.

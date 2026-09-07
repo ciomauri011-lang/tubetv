@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.brave.tv.youtube"
+    namespace = "com.tubetv.youtube"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.brave.tv.youtube"
+        applicationId = "com.tubetv.youtube"
         minSdk = 23
         targetSdk = 34
         versionCode = 2

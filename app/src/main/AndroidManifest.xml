@@ -12,9 +12,9 @@
         android:required="false" />
 
     <application
-        android:label="Brave TV YouTube"
-        android:icon="@mipmap/ic_launcher"
-        android:banner="@drawable/banner_tv_png"
+        android:label="TubeTV"
+        android:icon="@drawable/ic_tubetv"
+        android:banner="@drawable/banner_tubetv"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         android:usesCleartextTraffic="false"
         android:hardwareAccelerated="true">
@@ -24,7 +24,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode"
-            android:banner="@drawable/banner_tv_png">
+            android:banner="@drawable/banner_tubetv">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />

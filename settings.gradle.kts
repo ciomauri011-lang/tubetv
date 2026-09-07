@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Brave TV YouTube"
+rootProject.name = "TubeTV"
 include(":app")

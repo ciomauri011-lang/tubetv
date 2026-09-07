@@ -1,13 +1,13 @@
-/* Brave-TV anti-ads para youtube.com/tv (Leanback). Idempotente. */
+/* TubeTV anti-ads para youtube.com/tv (Leanback). Idempotente. */
 (function () {
-  if (window.__btvAntiAds) return;
-  window.__btvAntiAds = true;
+  if (window.__ttvAntiAds) return;
+  window.__ttvAntiAds = true;
 
   function css() {
-    var s = document.getElementById('btv-adcss');
+    var s = document.getElementById('ttv-adcss');
     if (s) return;
     s = document.createElement('style');
-    s.id = 'btv-adcss';
+    s.id = 'ttv-adcss';
     s.textContent = [
       '.ytp-ad-overlay-container,.ytp-ad-overlay-slot,',
       '.ytd-display-ad-renderer,.ytd-promoted-sparkles-text-search-renderer,',
