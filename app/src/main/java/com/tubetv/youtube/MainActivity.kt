@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
@@ -99,6 +101,12 @@ class MainActivity : AppCompatActivity() {
                 resultMsg: android.os.Message?
             ): Boolean = false
 
+            // Diagnóstico JS → logcat (adb logcat -s TubeTV).
+            override fun onConsoleMessage(msg: ConsoleMessage?): Boolean {
+                if (msg != null) Log.d("TubeTV", msg.message())
+                return true
+            }
+
             // Voz: cede micrófono a la página si el usuario lo permitió.
             override fun onPermissionRequest(request: PermissionRequest?) {
                 if (request == null) return
@@ -150,7 +158,11 @@ class MainActivity : AppCompatActivity() {
             }
             val eng = engine
             runOnUiThread {
-                webView.webViewClient = YouTubeWebViewClient(eng, js)
+                val client = YouTubeWebViewClient(eng, js)
+                webView.webViewClient = client
+                // La página inicial ya cargó con el cliente básico:
+                // inyecta de inmediato en la página actual.
+                client.inject(webView)
             }
         }, "tubetv-adblock").start()
     }
@@ -187,7 +199,8 @@ class MainActivity : AppCompatActivity() {
         webView.saveState(outState)
     }
 
-    // BACK TV: cierra fullscreen > historial WebView > nada (kiosko, no sale a otra página).
+    // BACK TV: cierra fullscreen > historial WebView > nada (kiosko real:
+    // en raíz se consume, el sistema ya no cierra la app).
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (fullscreenView != null) {
@@ -198,6 +211,7 @@ class MainActivity : AppCompatActivity() {
                 webView.goBack()
                 return true
             }
+            return true
         }
         return super.onKeyDown(keyCode, event)
     }

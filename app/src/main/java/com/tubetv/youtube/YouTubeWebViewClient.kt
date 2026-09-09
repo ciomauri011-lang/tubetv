@@ -74,6 +74,17 @@ class YouTubeWebViewClient(
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
+        inject(view)
+    }
+
+    // youtube.com/tv es SPA: las navegaciones no recargan página.
+    // Se reinyecta en cada cambio de historial.
+    override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
+        super.doUpdateVisitedHistory(view, url, isReload)
+        inject(view)
+    }
+
+    fun inject(view: WebView?) {
         if (adJs.isNotEmpty() && view != null) {
             runCatching { view.evaluateJavascript(adJs, null) }
         }
