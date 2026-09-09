@@ -1,4 +1,4 @@
-# TubeTV – tu YouTube sin ruido en la TV del salón
+# TubeTV – tu YouTube sin publicidad en la TV del salón
 
 El kiosko solo-YouTube para Android TV / Google TV: la interfaz Leanback oficial
 que ya conoces, sin navegador, sin distracciones, sin anuncios que te interrumpan.
